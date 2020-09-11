@@ -50,6 +50,22 @@ console.log(displayName, email,photoURL);
     })
     console.log('Sign out clicked');
   }
+  const handleSubmit = () => {
+
+  }
+  const handleBlur = (e) => {
+// console.log(e.target.value, e.target.name);
+if(e.target.name === 'email'){
+const isEmailValid = /\S+@\S+\.\S+/.test(e.target.value);
+console.log(isEmailValid);
+}
+
+if(e.target.name === 'password'){
+  const isPasswordValid =e.target.value.length > 6;
+  const passwordHasNumber =/\d{1}/.test(e.target.value);
+  console.log(isPasswordValid && passwordHasNumber);
+}
+  }
   return (
     <div className="App">
      { user.isSignedIn ? <button onClick={handlesignOut} >Sign Out</button> :
@@ -62,6 +78,17 @@ console.log(displayName, email,photoURL);
          <img src={user.photo} alt=""/>
          </div>
      }
+      
+     <h1>Our Own Authentication</h1>
+     <form onSubmit={handleSubmit}>
+     <input type="text" name="email" onBlur={handleBlur} placeholder="Your Email Address" required/>
+     <br/>
+     <input type="password" name="password" onBlur={handleBlur} placeholder="Enter Your Password" id="" required/>
+     <br/>
+     <input type="submit" value="Submit"/>
+
+     </form>
+
     </div>
   );
 }
