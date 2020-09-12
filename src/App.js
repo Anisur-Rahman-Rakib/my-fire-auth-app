@@ -8,11 +8,17 @@ import firebaseConfig from './firebaseConfig';
 firebase.initializeApp(firebaseConfig);
 
 function App() {
-  const [user, setUser] = useState({
+  const [newUser ,setNewUser] =useState(false);
+  const [user, setUser] = useState(
+    {
       isSignedIn: false,
+    
       name: '',
       email: '',
-      photo: '',                      
+      password:'',
+      photo: '', 
+      error: '',  
+      success: false,                   
   })
   const provider = new firebase.auth.GoogleAuthProvider();
   const handlesignIn = () => {
@@ -50,21 +56,79 @@ console.log(displayName, email,photoURL);
     })
     console.log('Sign out clicked');
   }
-  const handleSubmit = () => {
+  const handleSubmit = (e) => 
+  {
+   if (newUser && user.email && user.password)
+       {
+        firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+        .then(res =>{
+          const newUserInfo={...user};
+          newUserInfo.error='';
+          newUserInfo.success=true;
+          setUser(newUserInfo);
+          console.log(res);
+        })
+        .catch(error => {
+          // Handle Errors here.
+          const newUserInfo={...user};
+          newUserInfo.error =error.message;
+          newUserInfo.success=false;
+          setUser(newUserInfo);
+          // var errorCode = error.code;
+          // var errorMessage = error.message;
+          // console.log(errorCode, errorMessage);
+          // ...
+        });
+       }
+       if (!newUser && user.email && user.password)
+       {
+        firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+        .then(res =>{
+          const newUserInfo={...user};
+          newUserInfo.error='';
+          newUserInfo.success=true;
+          setUser(newUserInfo);
+          console.log(res);
+        })
+        .catch(function(error) {
+          // Handle Errors here.
+          // var errorCode = error.code;
+          // var errorMessage = error.message;
+          const newUserInfo={...user};
+          newUserInfo.error =error.message;
+          newUserInfo.success=false;
+          setUser(newUserInfo);
+          // ...
+        });
+       }
+        e.preventDefault();
 
   }
   const handleBlur = (e) => {
 // console.log(e.target.value, e.target.name);
-if(e.target.name === 'email'){
-const isEmailValid = /\S+@\S+\.\S+/.test(e.target.value);
-console.log(isEmailValid);
+let isFiledValid =  true;
+if(e.target.name === 'email')
+{
+  isFiledValid = /\S+@\S+\.\S+/.test(e.target.value);
+// console.log(isEmailValid);
 }
 
-if(e.target.name === 'password'){
+if(e.target.name === 'password')
+{
   const isPasswordValid =e.target.value.length > 6;
   const passwordHasNumber =/\d{1}/.test(e.target.value);
-  console.log(isPasswordValid && passwordHasNumber);
+  isFiledValid =isPasswordValid && passwordHasNumber;
+ }
+
+
+if(isFiledValid)
+{
+   const newUserInfo = {...user};
+   newUserInfo[e.target.name] = e.target.value;
+   setUser(newUserInfo);
 }
+
+
   }
   return (
     <div className="App">
@@ -80,7 +144,17 @@ if(e.target.name === 'password'){
      }
       
      <h1>Our Own Authentication</h1>
+     
+     <input type="checkbox" onChange={() => setNewUser(!newUser)} name="newUser" id=""/>
+     <label htmlFor="newUser">new user sinup</label>
+     {/* <p>Name : {user.name}</p>
+     <p>Email : {user.email}</p>
+     <p>password : {user.password}</p> */}
+
      <form onSubmit={handleSubmit}>
+
+     {newUser && <input type="text" name="name" onBlur={handleBlur} placeholder=" Enter Your Name "/>}
+     <br/>
      <input type="text" name="email" onBlur={handleBlur} placeholder="Your Email Address" required/>
      <br/>
      <input type="password" name="password" onBlur={handleBlur} placeholder="Enter Your Password" id="" required/>
@@ -88,7 +162,9 @@ if(e.target.name === 'password'){
      <input type="submit" value="Submit"/>
 
      </form>
-
+    <p style={{color: 'red'}}>{user.error}</p>
+   {user.success &&  <p style={{color: 'green'}}>user {newUser ? 'created' : 'Loged in'} successfully</p>
+}
     </div>
   );
 }
