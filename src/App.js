@@ -66,6 +66,7 @@ console.log(displayName, email,photoURL);
           newUserInfo.error='';
           newUserInfo.success=true;
           setUser(newUserInfo);
+          UpdateUserName(user.name);
           console.log(res);
         })
         .catch(error => {
@@ -88,7 +89,7 @@ console.log(displayName, email,photoURL);
           newUserInfo.error='';
           newUserInfo.success=true;
           setUser(newUserInfo);
-          console.log(res);
+          console.log(res.user ,'sign in user');
         })
         .catch(function(error) {
           // Handle Errors here.
@@ -130,11 +131,29 @@ if(isFiledValid)
 
 
   }
+
+const UpdateUserName = name => {
+
+  const  user = firebase.auth().currentUser;
+
+  user.updateProfile({
+    displayName: name 
+    // photoURL: "https://example.com/jane-q-user/profile.jpg"
+  }).then(function() {
+    console.log("update successfully")
+  }).catch(function(error) {
+    console.log("error successfully")
+  });     
+
+    }
+
   return (
     <div className="App">
      { user.isSignedIn ? <button onClick={handlesignOut} >Sign Out</button> :
      <button onClick={handlesignIn} >Sign In</button>
      }
+     <br/>
+     <button>sign in using facebook</button>
      {
        user.isSignedIn && <div> 
          <p>Welcome , {user.name}</p> 
@@ -159,7 +178,7 @@ if(isFiledValid)
      <br/>
      <input type="password" name="password" onBlur={handleBlur} placeholder="Enter Your Password" id="" required/>
      <br/>
-     <input type="submit" value="Submit"/>
+     <input type="submit" value={newUser ? 'sign up' : 'sign in'}/>
 
      </form>
     <p style={{color: 'red'}}>{user.error}</p>
